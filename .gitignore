@@ -16,6 +16,9 @@ pids
 *.seed
 *.pid.lock
 
+# Uploads
+uploads/
+
 # Coverage
 coverage/
 *.lcov
