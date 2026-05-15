@@ -5,7 +5,7 @@ import { GoogleGenAI } from '@google/genai';
 
 export async function POST(request: NextRequest) {
   try {
-    const { question, history = [] } = await request.json();
+    const { question, history = [], uploadedDocuments = [] } = await request.json();
 
     if (!question) {
       return NextResponse.json(
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     const ai = new GoogleGenAI({ apiKey });
     const embeddings = new GoogleGenerativeAIEmbeddings({
       apiKey,
-      model: 'text-embedding-004',
+      model: 'gemini-embedding-001',
     });
     const pinecone = new Pinecone({ apiKey: pineconeApiKey });
     const pineconeIndex = pinecone.Index(pineconeIndexName);
@@ -44,10 +44,15 @@ export async function POST(request: NextRequest) {
     // Embed the question
     const queryVector = await embeddings.embedQuery(question);
 
+    const filter = uploadedDocuments.length > 0
+      ? { fileName: { $in: uploadedDocuments } }
+      : undefined;
+
     // Search in Pinecone
     const searchResults = await pineconeIndex.query({
       topK: 10,
       vector: queryVector,
+      filter: filter,
       includeMetadata: true,
     });
 
@@ -74,7 +79,7 @@ export async function POST(request: NextRequest) {
     // Generate response using Gemini
     // Context is included in system instruction, and conversation history in contents
     const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash-001',
+      model: 'gemini-2.5-flash',
       contents: conversationHistory,
       config: {
         systemInstruction: `You are a helpful AI assistant with access to document context.

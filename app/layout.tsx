@@ -1,9 +1,12 @@
 import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
 import './globals.css';
 
+const inter = Inter({ subsets: ['latin'] });
+
 export const metadata: Metadata = {
-  title: 'Document RAG Assistant',
-  description: 'Upload documents and ask questions powered by AI',
+  title: 'AI Document RAG Assistant',
+  description: 'Upload documents and ask questions powered by advanced AI',
 };
 
 export default function RootLayout({
@@ -12,9 +15,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="en" className="dark">
+      <body className={`${inter.className} bg-slate-950 text-slate-50 antialiased selection:bg-cyan-500/30 selection:text-cyan-50`}>
+        {children}
+      </body>
     </html>
   );
 }
-
